@@ -22,7 +22,7 @@ BidStream is a modern, full-stack real-time auction platform built with Spring B
 -   **Framework**: Spring Boot 4.x
 -   **Language**: Java 17
 -   **Security**: Spring Security & JWT
--   **Database**: H2 (Persisted file-based) / PostgreSQL compatible
+-   **Database**: Neon PostgreSQL (Production Ready)
 -   **Real-time**: Spring WebSocket
 -   **Migration**: Flyway
 
@@ -45,7 +45,6 @@ BidStream is a modern, full-stack real-time auction platform built with Spring B
 │   └── src/main/resources/
 │       ├── static/                        # Frontend Assets (HTML, CSS, JSX)
 │       └── db/migration/                  # SQL Migration Scripts
-├── data/                                  # Persistent H2 Database storage
 └── uploads/                               # Local storage for item images
 ```
 
@@ -56,6 +55,7 @@ BidStream is a modern, full-stack real-time auction platform built with Spring B
 ### Prerequisites
 -   **Java 17** or higher
 -   **Maven 3.6+**
+-   **Neon PostgreSQL Account**
 
 ### Installation & Run
 
@@ -85,7 +85,7 @@ BidStream is a modern, full-stack real-time auction platform built with Spring B
 The application settings can be found in `backend/src/main/resources/application.properties`.
 
 -   **Port**: Defaulted to `8080`.
--   **Database**: Uses H2 file-based storage in the `./data` directory.
+-   **Database**: Uses Neon PostgreSQL.
 -   **JWT Secret**: Configurable via `jwt.secret`.
 
 ---
