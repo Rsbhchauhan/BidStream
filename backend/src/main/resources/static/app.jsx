@@ -623,7 +623,6 @@ function ProfileModal({ token, username, roles, onClose, onLogout, onUsernameCha
                         <div className="history-title">Bid <strong>${item.bidAmount}</strong></div>
                         <div className="history-meta">on {item.auctionTitle}</div>
                       </div>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{item.auctionStatus}</span>
                     </div>
                   ))}
                 </div>
@@ -950,7 +949,13 @@ function AuctionDetail({ token, username, roles }) {
             <h1>{auction.title}</h1>
             <p style={{ color: 'var(--text-secondary)', marginTop: '10px' }}>{auction.description}</p>
             <div style={{ marginTop: '20px' }}>
-              <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Status: {auction.status === 'UPCOMING' ? '📅 Scheduled' : auction.status}</div>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                Status: {
+                  auction.status === 'UPCOMING' ? '📅 Scheduled' : 
+                  (auction.status === 'PENDING_PAYMENT' && !(bids.length > 0 && bids[0].username === username) && auction.sellerUsername !== username) ? 'CLOSED' : 
+                  auction.status
+                }
+              </div>
               <div className="timer" style={{ marginTop: '10px', color: auction.status === 'UPCOMING' ? '#818cf8' : undefined }}>{timeLeft}</div>
               
               {auction.status === 'UPCOMING' && (
