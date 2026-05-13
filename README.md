@@ -10,7 +10,7 @@ BidStream is a modern, full-stack real-time auction platform built with Spring B
 -   **🔐 Secure Authentication**: JWT-based login and signup with Spring Security.
 -   **📅 Auction Management**: Scheduled and active auctions with countdown timers.
 -   **🔔 Notifications**: In-app notifications for bid activity and auction status.
--   **💳 Payment Integration**: Wallet-based bidding and payment tracking.
+-   **💳 Payment Integration**: Secure payment tracking and transaction history.
 -   **🖼️ Image Management**: Upload and storage for auction item images.
 -   **📊 Database Migrations**: Versioned schema management using Flyway.
 
