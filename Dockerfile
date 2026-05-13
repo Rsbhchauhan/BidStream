@@ -1,16 +1,16 @@
 # Build Stage
-# Using Amazon Corretto from ECR Public to avoid Docker Hub auth issues
-FROM public.ecr.aws/amazoncorretto/amazoncorretto:17 AS build
+# Using ECR Public mirrors to bypass Docker Hub auth issues
+FROM public.ecr.aws/docker/library/maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy only the necessary files for building
+# Copy everything from the backend directory
 COPY backend/ .
 
-# Ensure the Maven wrapper is executable and build the jar
-RUN chmod +x ./mvnw && ./mvnw clean package -DskipTests
+# Build the jar
+RUN mvn clean package -DskipTests
 
 # Run Stage
-FROM public.ecr.aws/amazoncorretto/amazoncorretto:17-alpine
+FROM public.ecr.aws/docker/library/openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy the built jar
