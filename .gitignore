@@ -1,0 +1,23 @@
+# Java / Maven
+backend/target/
+backend/.settings/
+backend/.classpath
+backend/.project
+backend/.factorypath
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local Data / Uploads
+uploads/
+data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

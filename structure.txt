@@ -1,0 +1,109 @@
+Create a high-concurrency, real-time online auction platform using Spring Boot 3.x by following the specific architectural and functional requirements listed below.
+
+1. Project Overview & Tech Stack
+Project Name: BidStream
+
+Language: Java 17 or higher.
+
+Framework: Spring Boot 3.x.
+
+Database: PostgreSQL (for persistent data).
+
+Cache/Concurrency: Redis (for distributed locking and live timer state).
+
+Real-Time Protocol: Spring WebSockets with STOMP and SockJS.
+
+Security: Spring Security with JWT (Stateless) and BCrypt password hashing.
+
+Build Tool: Maven or Gradle.
+
+Testing: JUnit 5, Mockito, and Testcontainers (for database integration tests).
+
+2. Core Data Model (Entities & Relations)
+User Entity:
+
+Fields: UUID id, String username, String email, String passwordHash, Double walletBalance, Set<Role> roles.
+
+Roles: ROLE_BUYER, ROLE_SELLER, ROLE_ADMIN.
+
+AuctionItem Entity:
+
+Fields: Long id, String title, String description, String imageUrl, Double startingPrice, Double currentHighestBid, Double reservePrice, LocalDateTime startTime, LocalDateTime endTime.
+
+State Management: Status enum (UPCOMING, ACTIVE, CLOSED, CANCELLED).
+
+Relations: Many-to-One with User (Seller).
+
+Bid Entity:
+
+Fields: Long id, Double amount, LocalDateTime bidTime.
+
+Relations: Many-to-One with AuctionItem, Many-to-One with User (Bidder).
+
+Notification Entity:
+
+Fields: Long id, String message, Boolean isRead, LocalDateTime createdAt.
+
+3. Functional Requirements (The API)
+Auth Module:
+
+Endpoints for User Registration and Login.
+
+JWT generation and validation filter.
+
+Auction Management:
+
+POST /api/auctions: Allows sellers to list items.
+
+GET /api/auctions/active: Retrieves all items currently open for bidding.
+
+GET /api/auctions/{id}: Detailed view of a single auction including the full bid history.
+
+Bidding Module:
+
+POST /api/bids: Accepts a bid. Logic must include checking user balance and ensuring the bid is the highest.
+
+Admin Dashboard:
+
+Ability to cancel fraudulent auctions or freeze user accounts.
+
+4. Real-Time Logic & WebSocket Flow
+Connection Endpoint: /ws (protected by JWT).
+
+Subscription Path: Clients must subscribe to /topic/auction/{auctionId} to receive live bid updates.
+
+Broadcast Logic: Every time a valid bid is processed via the POST /api/bids endpoint, the system must push a JSON payload to the specific auction topic containing the new currentHighestBid and the bidderUsername.
+
+Concurrency Constraint: Use Pessimistic Locking (@Lock(LockModeType.PESSIMISTIC_WRITE)) in the JPA Repository when fetching the AuctionItem to prevent "Double Bidding" at the same price.
+
+5. Advanced Business Rules (The "Anti-Sniper" & Scheduler)
+Anti-Sniper Extension: If a bid is received within the final 60 seconds of an auction, the system must automatically update the endTime of that auction by adding exactly 2 minutes.
+
+Automated Settlement: A background service using @Scheduled must run every 30 seconds to find all ACTIVE auctions where endTime is in the past. It must:
+
+Update status to CLOSED.
+
+Identify the winner.
+
+Transfer funds from the winner’s walletBalance to the seller.
+
+Trigger "You Won" and "Item Sold" notifications.
+
+6. User Interface Requirements (Frontend Directions)
+Auction Card: Must display a live, ticking countdown timer (synchronized with the server time).
+
+Live Bid Feed: A sidebar or section showing the last 5 bids in real-time as they happen.
+
+Visual Feedback: The price should flash green when a new bid arrives and red if the user is outbid.
+
+Image Handling: Provide an image upload interface that stores files and returns a URL to be saved in the database.
+
+7. Performance & Scalability Constraints
+Statelessness: The backend must be stateless to allow for horizontal scaling (running multiple instances behind a load balancer).
+
+Redis Locking: Use Redis for distributed locks if scaling horizontally to ensure only one instance processes a bid for a specific ID at a time.
+
+Database Indexing: Indexing on AuctionItem.status and AuctionItem.endTime for efficient scheduled task queries.
+
+8. Suggested ML Enhancement (Optional/Advanced)
+Price Prediction Service: A microservice (Python-based) that analyzes previous auction data to suggest a "Recommended Starting Price" to sellers during the listing creation phase.
