@@ -282,3 +282,85 @@ input:focus, textarea:focus {
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
+
+/* --- Responsive Media Queries --- */
+
+@media (max-width: 1024px) {
+  .auction-detail-container {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    padding: 15px 20px;
+  }
+  
+  .logo {
+    font-size: 1.4rem;
+  }
+
+  .container {
+    padding: 20px 15px;
+  }
+
+  .modal-content {
+    width: 95% !important;
+    height: 90vh !important;
+    padding: 20px !important;
+  }
+
+  .login-container {
+    flex-direction: column !important;
+    max-width: 100% !important;
+    margin: 20px auto !important;
+  }
+
+  .login-left {
+    width: 100% !important;
+    padding: 40px 30px !important;
+  }
+
+  .auction-detail-main {
+    flex-direction: column !important;
+  }
+
+  .auction-detail-image {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .price {
+    font-size: 1.4rem;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .tab-container {
+    gap: 10px;
+  }
+
+  .tab-btn {
+    font-size: 0.9rem;
+  }
+
+  .pending-payment-item {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 15px !important;
+  }
+
+  .pending-payment-item button {
+    width: 100% !important;
+  }
+
+  .user-welcome {
+    display: none !important;
+  }
+}

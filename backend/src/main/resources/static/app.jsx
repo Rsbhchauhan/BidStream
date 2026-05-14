@@ -64,7 +64,7 @@ function Login({ setToken, setUsername, setRoles }) {
   });
 
   return (
-    <div style={{ 
+    <div className="login-container" style={{ 
       display: 'flex', 
       maxWidth: '900px', 
       margin: '60px auto', 
@@ -74,7 +74,7 @@ function Login({ setToken, setUsername, setRoles }) {
       border: '1px solid rgba(255,255,255,0.08)'
     }}>
       {/* Left decorative panel */}
-      <div style={{
+      <div className="login-left" style={{
         width: '340px',
         background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #c084fc 100%)',
         padding: '50px 40px',
@@ -928,7 +928,7 @@ function AuctionDetail({ token, username, roles }) {
   if (!auction) return <div>Loading...</div>;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
+    <div className="auction-detail-container" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
       {showCheckout && (
         <CheckoutModal 
           auctionId={id} 
@@ -939,8 +939,9 @@ function AuctionDetail({ token, username, roles }) {
         />
       )}
       <div className={`glass-panel ${flashClass}`}>
-        <div style={{ display: 'flex', gap: '20px' }}>
+        <div className="auction-detail-main" style={{ display: 'flex', gap: '20px' }}>
           <img 
+            className="auction-detail-image"
             src={auction.imageUrl || 'https://images.unsplash.com/photo-1584727638096-042c45049ebe?auto=format&fit=crop&w=400&q=80'} 
             style={{ width: '300px', height: '300px', objectFit: 'contain', background: 'rgba(0,0,0,0.3)', borderRadius: '12px' }} 
             alt={auction.title} 
@@ -1065,7 +1066,7 @@ function PendingPayments({ token }) {
       <h2 style={{ color: 'var(--danger)', marginBottom: '20px' }}>Action Required: Pending Payments</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         {pending.map(auction => (
-          <div key={auction.id} className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div key={auction.id} className="glass-panel pending-payment-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
               <img src={auction.imageUrl} alt={auction.title} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
               <div>
@@ -1113,7 +1114,7 @@ function App() {
         <div>
           {token ? (
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-              <span style={{ marginRight: '15px' }}>Welcome, <strong>{username}</strong>!</span>
+              <span className="user-welcome" style={{ marginRight: '15px' }}>Welcome, <strong>{username}</strong>!</span>
               <button onClick={() => setShowProfile(true)} className="btn" style={{ background: 'var(--text-secondary)' }}>Profile</button>
             </div>
           ) : (
