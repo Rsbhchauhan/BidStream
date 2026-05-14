@@ -78,9 +78,4 @@ public class AuctionController {
         return ResponseEntity.ok().body("Auction reset to 1 minute.");
     }
 
-    @DeleteMapping("/cleanup")
-    public ResponseEntity<?> cleanupAuctions() {
-        auctionService.deleteAll();
-        return ResponseEntity.ok("All auctions cleared.");
-    }
 }

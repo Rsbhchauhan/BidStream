@@ -56,7 +56,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> 
                 auth.requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/", "/index.html", "/styles.css", "/app.jsx", "/favicon.ico", "/error", "/login", "/auction/**", "/profile", "/settings", "/dashboard", "/api/auctions/cleanup").permitAll()
+                    .requestMatchers("/", "/index.html", "/styles.css", "/app.jsx", "/favicon.ico", "/error", "/login", "/auction/**", "/profile", "/settings", "/dashboard").permitAll()
                     .requestMatchers("/*.css", "/*.js", "/*.jsx", "/*.ico", "/*.png", "/*.jpg", "/*.svg").permitAll()
                     .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/auctions/**").permitAll()
                     .requestMatchers("/uploads/**").permitAll()

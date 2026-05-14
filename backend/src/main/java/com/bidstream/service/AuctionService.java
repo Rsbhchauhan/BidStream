@@ -98,9 +98,4 @@ public class AuctionService {
             Status.ACTIVE.name(), auction.getStartingPrice(), auction.getEndTime().toString());
         messagingTemplate.convertAndSend(destination, payload);
     }
-    @Transactional
-    public void deleteAll() {
-        bidRepository.deleteAll();
-        auctionItemRepository.deleteAll();
-    }
 }
