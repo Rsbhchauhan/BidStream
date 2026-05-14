@@ -359,7 +359,7 @@ function AuctionList({ token, roles }) {
       {upcoming.length > 0 && (
         <div style={{ marginTop: '50px' }}>
           <h2 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span>📅</span> Upcoming Auctions
+            Upcoming Auctions
           </h2>
           <div className="auction-grid">
             {upcoming.map(auction => (
@@ -686,11 +686,11 @@ function CreateAuctionModal({ token, onClose, onSuccess }) {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>📅 Start Date & Time</label>
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Start Date & Time</label>
               <input type="datetime-local" required value={formData.startTime} onChange={e => setFormData({...formData, startTime: e.target.value})} style={{ colorScheme: 'dark' }} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>🏁 End Date & Time</label>
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>End Date & Time</label>
               <input type="datetime-local" required value={formData.endTime} onChange={e => setFormData({...formData, endTime: e.target.value})} style={{ colorScheme: 'dark' }} />
             </div>
           </div>
@@ -703,7 +703,7 @@ function CreateAuctionModal({ token, onClose, onSuccess }) {
             <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Item Photo (Optional)</label>
             <input type="file" accept="image/*" onChange={e => setFormData({...formData, image: e.target.files[0]})} style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text)', borderRadius: '8px' }} />
           </div>
-          <button type="submit" className="btn" style={{ background: 'var(--primary)', marginTop: '10px' }}>{isScheduled ? '📅 Schedule Auction' : '🚀 Launch Auction Now'}</button>
+          <button type="submit" className="btn" style={{ background: 'var(--primary)', marginTop: '10px' }}>{isScheduled ? 'Schedule Auction' : 'Launch Auction Now'}</button>
         </form>
       </div>
     </div>
@@ -952,7 +952,7 @@ function AuctionDetail({ token, username, roles }) {
             <div style={{ marginTop: '20px' }}>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                 Status: {
-                  auction.status === 'UPCOMING' ? '📅 Scheduled' : 
+                  auction.status === 'UPCOMING' ? 'Scheduled' : 
                   (auction.status === 'PENDING_PAYMENT' && !(bids.length > 0 && bids[0].username === username) && auction.sellerUsername !== username) ? 'CLOSED' : 
                   auction.status
                 }
@@ -961,7 +961,7 @@ function AuctionDetail({ token, username, roles }) {
               
               {auction.status === 'UPCOMING' && (
                 <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: '10px', fontSize: '0.85rem', color: '#a5b4fc' }}>
-                  ⏰ This auction hasn't started yet. Bidding opens at <strong>{new Date(auction.startTime).toLocaleString()}</strong>
+                  This auction hasn't started yet. Bidding opens at <strong>{new Date(auction.startTime).toLocaleString()}</strong>
                 </div>
               )}
               
@@ -979,7 +979,6 @@ function AuctionDetail({ token, username, roles }) {
 
             {auction.status === 'UPCOMING' ? (
               <div style={{ marginTop: '30px', padding: '20px', background: 'rgba(99,102,241,0.06)', borderRadius: '12px', textAlign: 'center' }}>
-                <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>⏳</div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Bidding will open when the auction starts</div>
               </div>
             ) : (auction.status === 'PENDING_PAYMENT' || (timeLeft === "Auction Ended" && auction.status !== 'PAID')) && bids.length > 0 && bids[0].username === username ? (
