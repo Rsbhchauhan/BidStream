@@ -655,8 +655,8 @@ function CreateAuctionModal({ token, onClose, onSuccess }) {
     data.append('description', formData.description);
     data.append('startingPrice', formData.startingPrice);
     if (formData.image) data.append('image', formData.image);
-    data.append('startTime', formData.startTime.replace('T', 'T').slice(0,19));
-    data.append('endTime', formData.endTime.replace('T', 'T').slice(0,19));
+    data.append('startTime', new Date(formData.startTime).toISOString());
+    data.append('endTime', new Date(formData.endTime).toISOString());
 
     try {
       const res = await fetch('/api/auctions', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: data });

@@ -40,8 +40,8 @@ public class AuctionController {
             imageUrl = imageStorageService.uploadImage(image);
         }
 
-        LocalDateTime startTime = LocalDateTime.parse(startTimeStr);
-        LocalDateTime endTime = LocalDateTime.parse(endTimeStr);
+        java.time.LocalDateTime startTime = java.time.OffsetDateTime.parse(startTimeStr).toLocalDateTime();
+        java.time.LocalDateTime endTime = java.time.OffsetDateTime.parse(endTimeStr).toLocalDateTime();
 
         AuctionItem item = auctionService.createAuction(
                 title, description, startingPrice, reservePrice, startTime, endTime, authentication.getName(), imageUrl);
