@@ -359,7 +359,7 @@ function AuctionList({ token, roles }) {
       {upcoming.length > 0 && (
         <div style={{ marginTop: '50px' }}>
           <h2 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            Upcoming Auctions
+            <span>🗓️</span> Upcoming Auctions
           </h2>
           <div className="auction-grid">
             {upcoming.map(auction => (
@@ -696,7 +696,7 @@ function CreateAuctionModal({ token, onClose, onSuccess }) {
           </div>
           {isScheduled && (
             <div style={{ padding: '10px 14px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '8px', fontSize: '0.85rem', color: '#818cf8' }}>
-              ⏰ This auction will be <strong>scheduled</strong> and automatically go live at the selected start time.
+              This auction will be <strong>scheduled</strong> and automatically go live at the selected start time.
             </div>
           )}
           <div>
@@ -952,7 +952,7 @@ function AuctionDetail({ token, username, roles }) {
             <div style={{ marginTop: '20px' }}>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                 Status: {
-                  auction.status === 'UPCOMING' ? 'Scheduled' : 
+                  auction.status === 'UPCOMING' ? '🗓️ Scheduled' : 
                   (auction.status === 'PENDING_PAYMENT' && !(bids.length > 0 && bids[0].username === username) && auction.sellerUsername !== username) ? 'CLOSED' : 
                   auction.status
                 }
@@ -961,7 +961,7 @@ function AuctionDetail({ token, username, roles }) {
               
               {auction.status === 'UPCOMING' && (
                 <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: '10px', fontSize: '0.85rem', color: '#a5b4fc' }}>
-                  This auction hasn't started yet. Bidding opens at <strong>{new Date(auction.startTime).toLocaleString()}</strong>
+                  ⏰ This auction hasn't started yet. Bidding opens at <strong>{new Date(auction.startTime).toLocaleString()}</strong>
                 </div>
               )}
               
@@ -979,6 +979,7 @@ function AuctionDetail({ token, username, roles }) {
 
             {auction.status === 'UPCOMING' ? (
               <div style={{ marginTop: '30px', padding: '20px', background: 'rgba(99,102,241,0.06)', borderRadius: '12px', textAlign: 'center' }}>
+                <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>⏳</div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Bidding will open when the auction starts</div>
               </div>
             ) : (auction.status === 'PENDING_PAYMENT' || (timeLeft === "Auction Ended" && auction.status !== 'PAID')) && bids.length > 0 && bids[0].username === username ? (
