@@ -644,12 +644,19 @@ function CreateAuctionModal({ token, onClose, onSuccess }) {
   // Default: start = now, end = now + 30 min
   const toLocalStr = (d) => { const o = d.getTimezoneOffset() * 60000; return new Date(d.getTime() - o).toISOString().slice(0,16); };
   const [formData, setFormData] = useState({ title: '', description: '', startingPrice: '', startTime: toLocalStr(new Date()), endTime: toLocalStr(new Date(Date.now() + 30*60000)), image: null });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    
     if (new Date(formData.endTime) <= new Date(formData.startTime)) {
-      alert('End time must be after start time'); return;
+      setError('End time must be after start time');
+      return;
     }
+
+    setLoading(true);
     const data = new FormData();
     data.append('title', formData.title);
     data.append('description', formData.description);
@@ -660,8 +667,18 @@ function CreateAuctionModal({ token, onClose, onSuccess }) {
 
     try {
       const res = await fetch('/api/auctions', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: data });
-      if (res.ok) onSuccess();
-    } catch (err) { console.error(err); }
+      if (res.ok) {
+        onSuccess();
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        setError(errorData.message || errorData.error || `Failed to create auction (Status: ${res.status})`);
+      }
+    } catch (err) { 
+      console.error(err);
+      setError('A network error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isScheduled = new Date(formData.startTime) > new Date();
@@ -671,6 +688,13 @@ function CreateAuctionModal({ token, onClose, onSuccess }) {
       <div className="glass-panel modal-content" style={{ width: '500px', position: 'relative' }}>
         <button onClick={onClose} style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: 'var(--text)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
         <h2 style={{ marginBottom: '20px' }}>Create New Auction</h2>
+        
+        {error && (
+          <div style={{ padding: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: 'var(--danger)', marginBottom: '20px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>✕</span> {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Item Title</label>
@@ -703,7 +727,16 @@ function CreateAuctionModal({ token, onClose, onSuccess }) {
             <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Item Photo (Optional)</label>
             <input type="file" accept="image/*" onChange={e => setFormData({...formData, image: e.target.files[0]})} style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text)', borderRadius: '8px' }} />
           </div>
-          <button type="submit" className="btn" style={{ background: 'var(--primary)', marginTop: '10px' }}>{isScheduled ? 'Schedule Auction' : 'Launch Auction Now'}</button>
+          <button type="submit" className="btn" disabled={loading} style={{ background: 'var(--primary)', marginTop: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+            {loading ? (
+              <>
+                <span className="spinner" style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
+                Processing...
+              </>
+            ) : (
+              isScheduled ? 'Schedule Auction' : 'Launch Auction Now'
+            )}
+          </button>
         </form>
       </div>
     </div>
