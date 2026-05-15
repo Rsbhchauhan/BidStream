@@ -1,6 +1,29 @@
 const { useState, useEffect } = React;
 const { BrowserRouter, Switch, Route, Link, useParams, useHistory } = ReactRouterDOM;
 
+// --- API Helper ---
+const api = async (url, options = {}) => {
+  const token = localStorage.getItem('token');
+  const headers = { ...options.headers };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(url, { ...options, headers });
+  
+  if (res.status === 401 || res.status === 403) {
+    // Session expired or invalid
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('roles');
+    window.location.href = '/login?expired=true';
+    return null;
+  }
+
+  return res;
+};
+
 // --- Login Component ---
 function Login({ setToken, setUsername, setRoles }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -8,6 +31,14 @@ function Login({ setToken, setUsername, setRoles }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const history = useHistory();
+  const location = ReactRouterDOM.useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('expired')) {
+      setError('Your session has expired. Please log in again.');
+    }
+  }, [location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -302,8 +333,8 @@ function AuctionList({ token, roles }) {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/auctions/active').then(r => r.json()),
-      fetch('/api/auctions/upcoming').then(r => r.json())
+      api('/api/auctions/active').then(r => r.json()),
+      api('/api/auctions/upcoming').then(r => r.json())
     ]).then(([active, up]) => {
       setAuctions(active);
       setUpcoming(up);
@@ -406,32 +437,31 @@ function ProfileModal({ token, username, roles, onClose, onLogout, onUsernameCha
   const isSeller = roles.includes('ROLE_SELLER');
 
   useEffect(() => {
-    const authHeaders = { 'Authorization': `Bearer ${token}` };
     if (activeTab === 'wins' && !isSeller) {
-      fetch('/api/user/wins', { headers: authHeaders })
-        .then(res => { if (!res.ok) throw new Error('Failed'); return res.json(); })
+      api('/api/user/wins')
+        .then(res => { if (!res || !res.ok) throw new Error('Failed'); return res.json(); })
         .then(data => { if (Array.isArray(data)) setWins(data); })
         .catch(() => setWins([]));
     }
     if (activeTab === 'dashboard' && isSeller) {
-      fetch('/api/user/dashboard', { headers: authHeaders })
-        .then(res => { if (!res.ok) throw new Error('Failed'); return res.json(); })
+      api('/api/user/dashboard')
+        .then(res => { if (!res || !res.ok) throw new Error('Failed'); return res.json(); })
         .then(data => setDashboard(data))
         .catch(() => setDashboard({ totalListings: 0, activeListings: 0, soldItems: 0, unsoldItems: 0, pendingPayment: 0, totalRevenue: 0, listings: [] }));
     }
     if (activeTab === 'history') {
       if (isSeller) {
-        fetch('/api/user/history/auctions', { headers: authHeaders })
-          .then(res => { if (!res.ok) throw new Error('Failed'); return res.json(); })
+        api('/api/user/history/auctions')
+          .then(res => { if (!res || !res.ok) throw new Error('Failed'); return res.json(); })
           .then(data => { if (Array.isArray(data)) setHistoryItems(data); })
           .catch(() => setHistoryItems([]));
       } else {
-        fetch('/api/user/history/bids', { headers: authHeaders })
-          .then(res => { if (!res.ok) throw new Error('Failed'); return res.json(); })
+        api('/api/user/history/bids')
+          .then(res => { if (!res || !res.ok) throw new Error('Failed'); return res.json(); })
           .then(data => { if (Array.isArray(data)) setHistoryItems(data); })
           .catch(() => setHistoryItems([]));
-        fetch('/api/user/history/payments', { headers: authHeaders })
-          .then(res => { if (!res.ok) throw new Error('Failed'); return res.json(); })
+        api('/api/user/history/payments')
+          .then(res => { if (!res || !res.ok) throw new Error('Failed'); return res.json(); })
           .then(data => { if (Array.isArray(data)) setPaymentItems(data); })
           .catch(() => setPaymentItems([]));
       }
@@ -441,11 +471,12 @@ function ProfileModal({ token, username, roles, onClose, onLogout, onUsernameCha
   const updateUsername = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/user/username', {
+      const res = await api('/api/user/username', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newUsername })
       });
+      if (!res) return;
       const data = await res.json();
       if (res.ok) { setMsg({ text: data.message, type: 'success' }); onUsernameChange(newUsername); }
       else { setMsg({ text: data.message, type: 'error' }); }
@@ -455,11 +486,12 @@ function ProfileModal({ token, username, roles, onClose, onLogout, onUsernameCha
   const updatePassword = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/user/password', {
+      const res = await api('/api/user/password', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword, newPassword })
       });
+      if (!res) return;
       const data = await res.json();
       if (res.ok) { setMsg({ text: data.message, type: 'success' }); setCurrentPassword(''); setNewPassword(''); }
       else { setMsg({ text: data.message, type: 'error' }); }
@@ -666,11 +698,10 @@ function CreateAuctionModal({ token, onClose, onSuccess }) {
     data.append('endTime', new Date(formData.endTime).toISOString());
 
     try {
-      const res = await fetch('/api/auctions', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: data });
+      const res = await api('/api/auctions', { method: 'POST', body: data });
+      if (!res) return;
       if (res.ok) {
         onSuccess();
-      } else if (res.status === 401 || res.status === 403) {
-        setError('Your session has expired or you do not have permission. Please log out and log in again.');
       } else {
         const errorData = await res.json().catch(() => ({}));
         setError(errorData.message || errorData.error || `Failed to create auction (Status: ${res.status})`);
@@ -758,10 +789,10 @@ function CheckoutModal({ auctionId, token, amount, onClose, onSuccess }) {
     // Simulate contacting a payment gateway
     setTimeout(async () => {
       try {
-        const res = await fetch(`/api/payment/pay/${auctionId}`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` }
+        const res = await api(`/api/payment/pay/${auctionId}`, {
+          method: 'POST'
         });
+        if (!res) return;
         if (res.ok) {
           onSuccess();
         } else {
@@ -843,17 +874,16 @@ function AuctionDetail({ token, username, roles }) {
   const [showCheckout, setShowCheckout] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/auctions/${id}`)
+    api(`/api/auctions/${id}`)
       .then(res => res.json())
       .then(data => {
         setAuction(data);
         setBidAmount((data.currentHighestBid || data.startingPrice) + 10);
       });
 
-    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-    fetch(`/api/bids/auction/${id}`, { headers, cache: 'no-store' })
+    api(`/api/bids/auction/${id}`, { cache: 'no-store' })
       .then(res => {
-        if (!res.ok) throw new Error("Error fetching bids");
+        if (!res || !res.ok) throw new Error("Error fetching bids");
         return res.json();
       })
       .then(data => {
@@ -940,12 +970,13 @@ function AuctionDetail({ token, username, roles }) {
     setError('');
 
     try {
-      const res = await fetch('/api/bids', {
+      const res = await api('/api/bids', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ auctionId: id, amount: parseFloat(bidAmount) })
       });
 
+      if (!res) return;
       if (!res.ok) {
         const errText = await res.text();
         setError(errText);
@@ -1066,12 +1097,9 @@ function PendingPayments({ token }) {
   const [checkoutAuction, setCheckoutAuction] = useState(null);
 
   useEffect(() => {
-    if (!token) return;
-    fetch('/api/auctions/pending-payments', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
+    api('/api/auctions/pending-payments')
       .then(res => {
-        if (!res.ok) throw new Error("Unauthorized or error fetching");
+        if (!res || !res.ok) throw new Error("Unauthorized or error fetching");
         return res.json();
       })
       .then(data => {
