@@ -669,6 +669,8 @@ function CreateAuctionModal({ token, onClose, onSuccess }) {
       const res = await fetch('/api/auctions', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: data });
       if (res.ok) {
         onSuccess();
+      } else if (res.status === 401 || res.status === 403) {
+        setError('Your session has expired or you do not have permission. Please log out and log in again.');
       } else {
         const errorData = await res.json().catch(() => ({}));
         setError(errorData.message || errorData.error || `Failed to create auction (Status: ${res.status})`);
